@@ -8,7 +8,7 @@ WORKDIR /app
 COPY requirements.txt .
 
 # Устанавливаем зависимости
-RUN pip install --no-cache-dir -r requirements.txt -i https://pypi.python.org/simple/
+RUN pip install --no-cache-dir -r requirements.txt
 
 
 # Копируем все файлы из текущей директории в рабочую директорию контейнера
