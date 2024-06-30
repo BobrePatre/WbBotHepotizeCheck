@@ -1,4 +1,5 @@
 import asyncio
+import logging
 import os
 
 from aiogram import Bot, Dispatcher, types, filters, F
@@ -7,6 +8,7 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from dotenv import load_dotenv
 from pymongo import MongoClient
 
+from handlers.reports import Reports
 from tasks.warehouse import update_stock
 from tasks.advancement import check_advancement
 
@@ -48,6 +50,7 @@ async def main():
     dp.message.middleware(AuthMiddleware(user_repo))
 
     # Register handlers
+    Reports(bot, dp).register_handlers()
     AdvancementHandlers(bot, dp, advancement_repo).register_handlers()
     Warehouse(bot, dp, warehouse_repo).register_handlers()
     InputUserDataHandlers(bot, dp, user_repo).register_handlers()
@@ -73,5 +76,6 @@ async def main():
 
 
 if __name__ == '__main__':
-    print("Starting bot...")
+    logging.basicConfig(level=logging.DEBUG)
+    logging.info(f'Starting bot at {os.getenv("BOT_TOKEN")}')
     asyncio.run(main())
