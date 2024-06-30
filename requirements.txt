@@ -1,4 +1,4 @@
-aiogram~=3.8.0
+aiogram
 requests~=2.32.3
 pymongo~=4.7.3
 python-dotenv~=1.0.1
