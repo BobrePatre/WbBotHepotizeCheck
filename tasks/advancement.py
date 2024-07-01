@@ -36,4 +36,4 @@ async def check_advancement(bot: Bot, advancement_repo: AdvancementRepository, u
                                                f"Ваш минимальный бюджет: {advancement['min_amount']}\n"
                                                f"Остаток на компании: {resp['total']}\n"
                                                f"Имя компании: {adv_data[0]['name']}")
-        await asyncio.sleep(60*10)
+        await asyncio.sleep(60*45)
