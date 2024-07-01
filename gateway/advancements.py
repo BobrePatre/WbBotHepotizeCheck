@@ -39,7 +39,7 @@ def get_advancement_data(token: str, advencement_id: int):
     req_body = [
         advencement_id,
     ]
-    resp = requests.post(url, headers=headers,  json=req_body)
+    resp = requests.post(url, headers=headers, json=req_body)
     if resp.status_code != 200:
         print(f"Error: {resp.status_code} - {resp.text}")
         return None
