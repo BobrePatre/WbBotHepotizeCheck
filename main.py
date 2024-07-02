@@ -1,6 +1,7 @@
 import asyncio
 import logging
 import os
+from urllib.parse import quote_plus
 
 from aiogram import Bot, Dispatcher, types, filters, F
 from aiogram.fsm.context import FSMContext
@@ -38,7 +39,9 @@ async def main():
     dp = Dispatcher(storage=MemoryStorage())
 
     # Connect to MongoDB
-    mongo_client = MongoClient(os.getenv("MONGO_HOST"), int(os.getenv("MONGO_PORT")))
+    mongo_uri = uri = "mongodb://%s:%s@%s" % (
+        quote_plus(os.getenv("MONGO_USER")), quote_plus(os.getenv("MONGO_PASSWORD")), os.getenv("MONGO_HOST"))
+    mongo_client = MongoClient(mongo_uri)
     app_database = mongo_client.get_database("app")
 
     # Initialize repositories

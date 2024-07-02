@@ -10,10 +10,15 @@ services:
       BOT_TOKEN: 6776917438:AAGlUDgFhyeSp3PfDK1PRYT73QH41aoXnNI
       MONGO_HOST: mongo
       MONGO_PORT: 27017
+      MONGO_USER: root
+      MONGO_PASSWORD: asdfasfasfasf&*FY8f8f8
     networks:
       - database
   mongo:
     image: mongo:latest
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: asdfasfasfasf&*FY8f8f8
     ports:
       - "27017:27017"
     restart: unless-stopped

@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta
+
 from pymongo.database import Database
 
 
@@ -20,6 +22,7 @@ class UserRepository:
             {"tg_id": tg_id},
             {"$set": {"wb_key": wb_key}}
         )
+
 
     def get_user(self, tg_id: int):
         return self.collection.find_one({"tg_id": tg_id})
