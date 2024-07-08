@@ -1,10 +1,9 @@
 from pymongo.database import Database
 
+from repository.mongo.base import MongoRepository
 
-class AdvancementRepository:
-    def __init__(self, database: Database):
-        self.database: Database = database
-        self.collection = database.get_collection('advancements')
+
+class AdvancementRepository(MongoRepository):
 
     def set_advancement(self, user_id: int, min_amount: int):
         is_exists = self.collection.find_one({'user_id': user_id})

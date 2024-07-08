@@ -1,10 +1,9 @@
 from pymongo.database import Database
 
+from repository.mongo.base import MongoRepository
 
-class WarehouseRepo:
-    def __init__(self, database: Database):
-        self.database: Database = database
 
+class WarehouseRepository(MongoRepository):
     def add_new_article_to_user(self, tg_id: int, article: dict[str, any]):
         self.database.get_collection("articles").insert_one(
             {
@@ -15,7 +14,6 @@ class WarehouseRepo:
 
     def get_all_articles(self):
         return list(self.database.get_collection("articles").find({}))
-
 
     def get_users_articles(self, tg_id: int):
         res = self.database.get_collection("articles").find({"user_id": tg_id})

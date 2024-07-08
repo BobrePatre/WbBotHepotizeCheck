@@ -5,14 +5,14 @@ import keyboards.main
 
 from states.main import UserDataStates
 
-from repository.mongo.user import UserRepository
+from repository.mongo.user import UsersRepository
 import keyboards.main as kb
 
 router = Router(name="input_user_data")
 
 
 class InputUserDataHandlers:
-    def __init__(self, bot: Bot, dp: Dispatcher, user_repo: UserRepository):
+    def __init__(self, bot: Bot, dp: Dispatcher, user_repo: UsersRepository):
         self.bot = bot
         self.dp = dp
         self.router = Router(name="user_input_handlers")

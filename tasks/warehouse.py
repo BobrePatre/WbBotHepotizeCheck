@@ -3,11 +3,11 @@ from datetime import datetime, timedelta
 from aiogram import Bot
 
 from gateway.warehouse import get_orders
-from repository.mongo.user import UserRepository
-from repository.mongo.warehouse import WarehouseRepo
+from repository.mongo.user import UsersRepository
+from repository.mongo.warehouse import WarehouseRepository
 
 
-async def update_stock(bot: Bot, users_repo: UserRepository, warehouse_repo: WarehouseRepo):
+async def update_stock(bot: Bot, users_repo: UsersRepository, warehouse_repo: WarehouseRepository):
     while True:
         now_moscow = datetime.now()
         date_from = int((now_moscow - timedelta(minutes=10)).timestamp())

@@ -1,7 +1,6 @@
 import asyncio
 import logging
 import os
-from urllib.parse import quote_plus
 
 from aiogram import Bot, Dispatcher, types, filters, F
 from aiogram.fsm.context import FSMContext
@@ -10,12 +9,13 @@ from dotenv import load_dotenv
 from pymongo import MongoClient
 
 from handlers.reports import Reports
+from repository.mongo.reports import ReportsRepository
 from tasks.warehouse import update_stock
 from tasks.advancement import check_advancement
 
 # Import repositories
-from repository.mongo.user import UserRepository
-from repository.mongo.warehouse import WarehouseRepo
+from repository.mongo.user import UsersRepository
+from repository.mongo.warehouse import WarehouseRepository
 from repository.mongo.advancement import AdvancementRepository
 
 # Import handlers
@@ -39,16 +39,19 @@ async def main():
     dp = Dispatcher(storage=MemoryStorage())
 
     # Connect to MongoDB
-    mongo_uri = uri = "mongodb://%s:%s@%s:%s" % (
-        quote_plus(os.getenv("MONGO_USER")), quote_plus(os.getenv("MONGO_PASSWORD")), os.getenv("MONGO_HOST"), os.getenv("MONGO_PORT"))
+    mongo_uri = f'mongodb://{os.getenv("MONGO_USER")}:{os.getenv("MONGO_PASSWORD")}@{os.getenv("MONGO_HOST")}:{os.getenv("MONGO_PORT")}'
+    if os.getenv('DEBUG'):
+        mongo_uri = f'mongodb://{os.getenv("MONGO_HOST")}:{os.getenv("MONGO_PORT")}'
+
     mongo_client = MongoClient(mongo_uri)
     app_database = mongo_client.get_database("app")
 
     # Initialize repositories
-    user_repo = UserRepository(app_database)
-    warehouse_repo = WarehouseRepo(app_database)
+    reports_repo = ReportsRepository(app_database)
+    user_repo = UsersRepository(app_database)
+    warehouse_repo = WarehouseRepository(app_database)
     advancement_repo = AdvancementRepository(app_database)
-
+    reports_repo.test()
     # Setup middleware
     dp.message.middleware(AuthMiddleware(user_repo))
 

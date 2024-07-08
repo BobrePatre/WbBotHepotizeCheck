@@ -1,0 +1,20 @@
+name: "wb-analytic-bot"
+version: "3.8"
+
+services:
+
+  mongo:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    restart: unless-stopped
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - database
+
+networks:
+  database:
+
+volumes:
+  mongo-data:

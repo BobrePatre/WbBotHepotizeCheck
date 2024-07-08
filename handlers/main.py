@@ -2,13 +2,13 @@ from aiogram import types, filters
 from aiogram import Dispatcher, Router, Bot
 from aiogram.fsm.context import FSMContext
 
-from repository.mongo.user import UserRepository
+from repository.mongo.user import UsersRepository
 
 import keyboards.main as kb
 
 
 class MainHandlers:
-    def __init__(self, bot: Bot, dp: Dispatcher, users_repo: UserRepository):
+    def __init__(self, bot: Bot, dp: Dispatcher, users_repo: UsersRepository):
         self.bot = bot
         self.dp = dp
         self.router = Router(name="main_handlers")

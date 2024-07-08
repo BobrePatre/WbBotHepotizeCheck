@@ -5,11 +5,11 @@ from aiogram.fsm.context import FSMContext
 import keyboards.warehouse
 
 from states.warehouse import AddArticle, AddProducment, ChangingLimit, ChangingLowerLimit, ItemsInfo, DeleteArticle
-from repository.mongo.warehouse import WarehouseRepo
+from repository.mongo.warehouse import WarehouseRepository
 
 
 class Warehouse:
-    def __init__(self, bot: Bot, dp: Dispatcher, warehouse_repo: WarehouseRepo):
+    def __init__(self, bot: Bot, dp: Dispatcher, warehouse_repo: WarehouseRepository):
         self.bot = bot
         self.dp = dp
         self.router = Router(name="warehouse")

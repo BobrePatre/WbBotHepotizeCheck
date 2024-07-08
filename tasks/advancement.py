@@ -4,10 +4,10 @@ from aiogram import Bot
 
 from repository.mongo.advancement import AdvancementRepository
 from gateway.advancements import get_advancements, get_advancement_budget, get_advancement_data
-from repository.mongo.user import UserRepository
+from repository.mongo.user import UsersRepository
 
 
-async def check_advancement(bot: Bot, advancement_repo: AdvancementRepository, user_repository: UserRepository):
+async def check_advancement(bot: Bot, advancement_repo: AdvancementRepository, user_repository: UsersRepository):
     while True:
         users_advancements = advancement_repo.get_all_advancements()
         print("debug -1")

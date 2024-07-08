@@ -1,4 +1,5 @@
 import io
+import logging
 
 import openpyxl
 from aiogram import Router, Dispatcher, Bot, types, filters, F
@@ -45,19 +46,18 @@ class Reports:
         document = msg.document
         if document is None:
             await msg.reply("Пришлите файл с таблицой")
-        if document.mime_type == 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':
-            file_info = await self.bot.get_file(document.file_id)
-            file_path = file_info.file_path
-            file = await self.bot.download_file(file_path)
-            wb = openpyxl.load_workbook(io.BytesIO(file.read()))
-            sheet = wb.active
-            data = []
-            for row in sheet.iter_rows():
-                data.append(row)
-            await msg.reply(f"Файл успешно распарсен! Данные файла:\n{data}")
-        else:
+        if document.mime_type != 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':
             await msg.reply("Пожалуйста, пришлите корректный Excel файл.")
             return
+        file_info = await self.bot.get_file(document.file_id)
+        file_path = file_info.file_path
+        file = await self.bot.download_file(file_path)
+        wb = openpyxl.load_workbook(io.BytesIO(file.read()))
+        sheet = wb.active
+        for row in sheet.iter_rows():
+            logging.debug(row)
+        await msg.reply(f"Файл успешно распарсен! Данные в консоли")
+
         await state.clear()
 
     # Register Zone

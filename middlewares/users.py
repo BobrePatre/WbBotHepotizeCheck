@@ -3,12 +3,12 @@ from typing import Callable, Dict, Any, Awaitable
 from aiogram import BaseMiddleware, Bot, Dispatcher
 from aiogram.types import TelegramObject, Message
 
-from repository.mongo.user import UserRepository
+from repository.mongo.user import UsersRepository
 
 
 class AuthMiddleware(BaseMiddleware):
 
-    def __init__(self, users_repo: UserRepository):
+    def __init__(self, users_repo: UsersRepository):
         self.users_repo = users_repo
 
     async def __call__(
