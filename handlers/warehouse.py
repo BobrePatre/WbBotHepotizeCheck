@@ -217,8 +217,23 @@ class Warehouse:
 
     # end deleting article zone
 
+    # start all stocks
+
+    async def show_all_stocks(self, message: types.Message):
+        articles = self.warehouse_repo.get_users_articles(message.from_user.id)
+        msg = ""
+        for article in articles:
+            art = article["article"]
+            msg += f"{art["name"]} ({art['article']}) - {art["limit"]}шт.\n"
+        await self.bot.send_message(message.from_user.id, "Ваши текущие остатки: \n" + msg)
+
+    # end all stocks
+
     # Register Zone
     def register_handlers(self):
+        self.router.message.register(self.show_all_stocks, F.text == "Все остатки")
+
+        # -------
         self.router.message.register(self.start_deleting, F.text == "Удалить артикул")
         self.router.callback_query.register(self.delete_article, filters.StateFilter(DeleteArticle.article))
 

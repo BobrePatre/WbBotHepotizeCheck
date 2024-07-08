@@ -16,6 +16,7 @@ class WarehouseRepo:
     def get_all_articles(self):
         return list(self.database.get_collection("articles").find({}))
 
+
     def get_users_articles(self, tg_id: int):
         res = self.database.get_collection("articles").find({"user_id": tg_id})
         return res

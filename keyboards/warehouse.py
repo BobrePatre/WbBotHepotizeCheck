@@ -9,6 +9,7 @@ def get_warehouse_menu() -> ReplyKeyboardMarkup:
             [KeyboardButton(text="Изменить текущий остаток на складе"), ],
             [KeyboardButton(text="Изменить минимальный остаток"), ],
             [KeyboardButton(text="Посмотреть остатки"), ],
+            [KeyboardButton(text="Все остатки"), ],
             [KeyboardButton(text="Удалить артикул", ), ],
             [KeyboardButton(text="На главную", ), ],
         ]
