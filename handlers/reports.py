@@ -37,8 +37,8 @@ class Reports:
             "на меню с выбором “Excel” и “Чат с ботом”)",
             reply_markup=get_url_button(
                 "Таблица",
-                "https://docs.google.com/spreadsheets/d/e/2PACX-1vRvX6sd-HIE7_ugk30oS9V49EwdS7Qsxtwdz"
-                "-iBgpKQ2EzL4h0gzDPPKJuhXOJkmiCOIpWvE4BUNC1G/pub?output=xlsx",
+                "https://docs.google.com/spreadsheets/d/e/2PACX-1vT1-xJH2yVYyyMFfzOY"
+                "-f6fExCZ_eBvIWJTVZcb7f6INn1GclKJIv-voDH9KFQrzQ/pub?output=xlsx",
             )
         )
         await state.set_state(ReportTypeExcel.file)
@@ -61,7 +61,8 @@ class Reports:
 
         parsed_data = []
         for row in sheet.iter_rows(min_row=2, values_only=True):
-            parsed_data.append({
+            response = ""
+            item = {
                 "article": row[0],
                 "title": row[1],
                 "advancements_ids": str(row[2]).replace(" ", "").split(","),
@@ -69,8 +70,19 @@ class Reports:
                 "additional_commission": row[4],
                 "purchase_price": row[5],
                 "warehouse_delivery": row[6],
-
-            })
+                "wb_logistics_cost": row[7],
+                "tax_rate": row[8],
+                "packaging_costs": row[9],
+                "shipping_costs_to_warehouse_per_item": row[10],
+                "gift_price": row[11],
+                "reject_rate": row[12],
+                "other_expenses": row[13],
+            }
+            parsed_data.append(item)
+            logging.info(item)
+            for k,v in item.items():
+                response += f"{k}: {v}\n"
+            await self.bot.send_message(msg.from_user.id, response)
 
         # Пример отправки парсенных данных пользователю (можно доработать форматирование)
         logging.info(parsed_data)
