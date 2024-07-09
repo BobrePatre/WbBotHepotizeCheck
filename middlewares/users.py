@@ -1,9 +1,9 @@
 from typing import Callable, Dict, Any, Awaitable
 
-from aiogram import BaseMiddleware, Bot, Dispatcher
-from aiogram.types import TelegramObject, Message
+from aiogram import BaseMiddleware
+from aiogram.types import Message
 
-from repository.mongo.user import UsersRepository
+from repository.user import UsersRepository
 
 
 class AuthMiddleware(BaseMiddleware):

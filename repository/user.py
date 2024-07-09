@@ -1,8 +1,4 @@
-from datetime import datetime, timedelta
-
-from pymongo.database import Database
-
-from repository.mongo.base import MongoRepository
+from repository.base import MongoRepository
 
 
 class UsersRepository(MongoRepository):

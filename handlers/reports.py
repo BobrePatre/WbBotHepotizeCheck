@@ -2,6 +2,7 @@ import io
 import logging
 
 import openpyxl
+import openpyxl.worksheet.worksheet
 from aiogram import Router, Dispatcher, Bot, types, filters, F
 from aiogram.fsm.context import FSMContext
 
@@ -36,8 +37,8 @@ class Reports:
             "на меню с выбором “Excel” и “Чат с ботом”)",
             reply_markup=get_url_button(
                 "Таблица",
-                "https://docs.google.com/spreadsheets/d/1eioRhpqtvYAVIRU8EL85BmplxR06tfPH/edit?usp=sharing&ouid"
-                "=108814234422013602766&rtpof=true&sd=true",
+                "https://docs.google.com/spreadsheets/d/e/2PACX-1vRvX6sd-HIE7_ugk30oS9V49EwdS7Qsxtwdz"
+                "-iBgpKQ2EzL4h0gzDPPKJuhXOJkmiCOIpWvE4BUNC1G/pub?output=xlsx",
             )
         )
         await state.set_state(ReportTypeExcel.file)
@@ -45,19 +46,35 @@ class Reports:
     async def save_file(self, msg: types.Message, state: FSMContext):
         document = msg.document
         if document is None:
-            await msg.reply("Пришлите файл с таблицой")
+            await msg.reply("Пришлите файл с таблицей")
+            return
+
         if document.mime_type != 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':
             await msg.reply("Пожалуйста, пришлите корректный Excel файл.")
             return
+
         file_info = await self.bot.get_file(document.file_id)
         file_path = file_info.file_path
         file = await self.bot.download_file(file_path)
         wb = openpyxl.load_workbook(io.BytesIO(file.read()))
         sheet = wb.active
-        for row in sheet.iter_rows():
-            logging.debug(row)
-        await msg.reply(f"Файл успешно распарсен! Данные в консоли")
 
+        parsed_data = []
+        for row in sheet.iter_rows(min_row=2, values_only=True):
+            parsed_data.append({
+                "article": row[0],
+                "title": row[1],
+                "advancements_ids": str(row[2]).replace(" ", "").split(","),
+                "wb_commission": row[3],
+                "additional_commission": row[4],
+                "purchase_price": row[5],
+                "warehouse_delivery": row[6],
+
+            })
+
+        # Пример отправки парсенных данных пользователю (можно доработать форматирование)
+        logging.info(parsed_data)
+        await msg.reply(f"Файл успешно распарсен!")
         await state.clear()
 
     # Register Zone

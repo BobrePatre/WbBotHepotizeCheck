@@ -9,14 +9,14 @@ from dotenv import load_dotenv
 from pymongo import MongoClient
 
 from handlers.reports import Reports
-from repository.mongo.reports import ReportsRepository
+from repository.reports import ReportsRepository
 from tasks.warehouse import update_stock
 from tasks.advancement import check_advancement
 
 # Import repositories
-from repository.mongo.user import UsersRepository
-from repository.mongo.warehouse import WarehouseRepository
-from repository.mongo.advancement import AdvancementRepository
+from repository.user import UsersRepository
+from repository.warehouse import WarehouseRepository
+from repository.advancement import AdvancementRepository
 
 # Import handlers
 from handlers.main import MainHandlers
@@ -51,7 +51,6 @@ async def main():
     user_repo = UsersRepository(app_database)
     warehouse_repo = WarehouseRepository(app_database)
     advancement_repo = AdvancementRepository(app_database)
-    reports_repo.test()
     # Setup middleware
     dp.message.middleware(AuthMiddleware(user_repo))
 

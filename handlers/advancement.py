@@ -3,7 +3,7 @@ from aiogram.fsm.context import FSMContext
 
 from keyboards.advancement import get_advancement_menu
 from states.advancement import BudgetConrol
-from repository.mongo.advancement import AdvancementRepository
+from repository.advancement import AdvancementRepository
 
 
 class AdvancementHandlers:

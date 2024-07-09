@@ -1,8 +1,7 @@
 from aiogram import types, filters
 from aiogram import Dispatcher, Router, Bot
-from aiogram.fsm.context import FSMContext
 
-from repository.mongo.user import UsersRepository
+from repository.user import UsersRepository
 
 import keyboards.main as kb
 

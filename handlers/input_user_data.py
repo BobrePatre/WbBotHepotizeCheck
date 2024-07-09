@@ -1,11 +1,9 @@
 from aiogram import Router, filters, types, Dispatcher, Bot, F
 from aiogram.fsm.context import FSMContext
 
-import keyboards.main
-
 from states.main import UserDataStates
 
-from repository.mongo.user import UsersRepository
+from repository.user import UsersRepository
 import keyboards.main as kb
 
 router = Router(name="input_user_data")

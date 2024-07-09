@@ -1,11 +1,10 @@
 from aiogram import Router, filters, types, Dispatcher, Bot, F
-from aiogram.client import bot
 from aiogram.fsm.context import FSMContext
 
 import keyboards.warehouse
 
 from states.warehouse import AddArticle, AddProducment, ChangingLimit, ChangingLowerLimit, ItemsInfo, DeleteArticle
-from repository.mongo.warehouse import WarehouseRepository
+from repository.warehouse import WarehouseRepository
 
 
 class Warehouse:
