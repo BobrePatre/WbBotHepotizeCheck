@@ -55,7 +55,7 @@ async def main():
     dp.message.middleware(AuthMiddleware(user_repo))
 
     # Register handlers
-    Reports(bot, dp).register_handlers()
+    Reports(bot, dp, reports_repo).register_handlers()
     AdvancementHandlers(bot, dp, advancement_repo).register_handlers()
     Warehouse(bot, dp, warehouse_repo).register_handlers()
     InputUserDataHandlers(bot, dp, user_repo).register_handlers()

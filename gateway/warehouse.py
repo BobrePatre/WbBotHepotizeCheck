@@ -13,8 +13,8 @@ def get_orders(token, date_from):
         "next": 0,
         "dateFrom": f"{date_from}"
     }
-    req = requests.get(url, headers=headers, params=params)
-    if req.status_code != 200:
-        print(f"Error: {req.status_code} - {req.text}")
+    response = requests.get(url, headers=headers, params=params)
+    if response.status_code != 200:
+        response.raise_for_status()
         return None
-    return req.json()
+    return response.json()

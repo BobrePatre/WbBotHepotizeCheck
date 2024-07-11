@@ -8,13 +8,15 @@ from aiogram.fsm.context import FSMContext
 
 from keyboards.utils import get_url_button
 from keyboards.reports import get_report_type_choise
+from repository.reports import ReportsRepository
 from states.reports import ChooseReportType, ReportTypeExcel
 
 
 class Reports:
-    def __init__(self, bot: Bot, dp: Dispatcher):
+    def __init__(self, bot: Bot, dp: Dispatcher, reports_repo: ReportsRepository):
         self.bot = bot
         self.dp = dp
+        self.reports_repo = reports_repo
         self.router = Router(name="warehouse")
 
     async def start_choose_report(self, msg: types.Message, state: FSMContext):
@@ -59,14 +61,13 @@ class Reports:
         wb = openpyxl.load_workbook(io.BytesIO(file.read()))
         sheet = wb.active
 
-        parsed_data = []
+        self.reports_repo.clear_items(msg.from_user.id)
         for row in sheet.iter_rows(min_row=2, values_only=True):
-            response = ""
             item = {
                 "article": row[0],
                 "title": row[1],
                 "advancements_ids": str(row[2]).replace(" ", "").split(","),
-                "wb_commission": row[3],
+                "wb_commission_percents": row[3],
                 "additional_commission": row[4],
                 "purchase_price": row[5],
                 "warehouse_delivery": row[6],
@@ -77,16 +78,20 @@ class Reports:
                 "gift_price": row[11],
                 "reject_rate": row[12],
                 "other_expenses": row[13],
+                "selling_price": row[14],
             }
-            parsed_data.append(item)
+            if item["article"] is None:
+                continue
+            item["wb_commission_rubles"] = item["selling_price"] / 100 * (
+                    item["wb_commission_percents"] + item["additional_commission"])
+            item["tax_amount"] = item["selling_price"] / 100 * item["tax_rate"]
+            item["marriage_costs"] = item["selling_price"] / 100 * item["reject_rate"]
             logging.info(item)
-            for k,v in item.items():
-                response += f"{k}: {v}\n"
-            await self.bot.send_message(msg.from_user.id, response)
+            self.reports_repo.add_item(item, msg.from_user.id)
 
-        # Пример отправки парсенных данных пользователю (можно доработать форматирование)
-        logging.info(parsed_data)
-        await msg.reply(f"Файл успешно распарсен!")
+        await msg.reply(f"Получил, теперь ежедневно я буду вести учет Ваших продаж\n"
+                        "(Бот будет работать с этой таблицей и формировать ежедневные отчеты по прибыли, присылать их "
+                        "после окончания дня 00:10 по мск)")
         await state.clear()
 
     # Register Zone
