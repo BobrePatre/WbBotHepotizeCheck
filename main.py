@@ -96,7 +96,6 @@ async def main():
     scheduler.add_job(
         send_report,
         CronTrigger(hour=0, minute=10, timezone='Europe/Moscow'),
-        next_run_time=datetime.datetime.now(),
         args=[bot, advancement_repo, warehouse_repo, user_repo, reports_repo],
     )
     scheduler.start()
