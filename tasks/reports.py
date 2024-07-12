@@ -1,9 +1,10 @@
 import logging
 import time
 from datetime import datetime, timedelta
-
+from io import BytesIO
 from aiogram import Bot
-
+from aiogram.types import BufferedInputFile
+from openpyxl import Workbook
 from gateway.advancements import get_advancement_cost_history
 from gateway.marketplace import fetch_orders
 from repository.advancement import AdvancementRepository
@@ -19,24 +20,18 @@ async def send_report(
         user_repository: UsersRepository,
         reports_repo: ReportsRepository,
 ):
-    # Текущее время
     now = datetime.now()
-
-    # Начало предыдущего дня (00:00:00)
     start_of_previous_day = datetime(now.year, now.month, now.day) - timedelta(days=1)
-
-    # Конец предыдущего дня (23:59:59)
     end_of_previous_day = start_of_previous_day + timedelta(hours=23, minutes=59, seconds=59)
 
-    # Конвертация в Unix timestamp
     start_timestamp = int(time.mktime(start_of_previous_day.timetuple()))
     end_timestamp = int(time.mktime(end_of_previous_day.timetuple()))
 
-    # Преобразование Unix timestamp обратно в дату с минутами и секундами
     start_date = datetime.fromtimestamp(start_timestamp).strftime('%Y-%m-%d')
     end_date = datetime.fromtimestamp(end_timestamp).strftime('%Y-%m-%d')
     today = datetime.today().strftime('%Y-%m-%d')
     users = user_repository.get_all_users()
+
     for user in users:
         if "wb_key" not in user:
             continue
@@ -51,12 +46,21 @@ async def send_report(
         logging.debug(orders)
         all_profit = 0
         all_advertising_costs = 0
-        for report in reports:
 
-            order_count = 0
-            for order in orders:
-                if order["article"] == report["article"]:
-                    order_count += 1
+        workbook = Workbook()
+        sheet = workbook.active
+        headers = [
+            "Наименование", "Артикул", "Коммисия Wildberries", "Закупочная цена",
+            "Доставка до склада", "Логистика wb", "Налоговая ставка", "Сумма налогов",
+            "Затраты на упаковку", "Расходы на доставку до склада WB", "Процент брака",
+            "Сумма расходов на брак", "Сопутствующие расходы единицу товара",
+            "Себестоимость", "Цена продажи", "Заказали штук", "Прибыль за штуку",
+            "Прибыль до вычета рекламы", "Затраты на рекламу", "Чистая прибыль"
+        ]
+        sheet.append(headers)
+
+        for report in reports:
+            order_count = sum(1 for order in orders if order["article"] == report["article"])
             report["profit_excluding_advertising"] = report["unit_profit"] * order_count
 
             advancement_costs = 0
@@ -66,42 +70,35 @@ async def send_report(
                     if int(advancement["advertId"]) == int(advancement_id):
                         advancement_costs += advancement["updSum"]
 
-            msg = [
-                f"_Данные по товару:_ *{report['title']}*",
-                f"Артикул: `{report['article']}`",
-                f"Наименование: {report['title']}",
-                f"Коммисия Wildberries: {report['wb_comission_cost']}",
-                f"Закупочная цена: {report['purchase_price']}",
-                f"Доставка до склада: {report['warehouse_delivery_cost']}",
-                f"Логистика wb: {report['wb_logistics_cost']}",
-                f"Налоговая ставка: {report['tax_rate']}",
-                f"Сумма налогов: {report['tax_cost']}",
-                f"Затраты на упаковку: {report['packing_cost']}",
-                f"Расходы на доставку до склада WB: {report['wb_warehouse_delivery_cost_per_item']}",
-                f"Процент брака: {report['defect_percentage']}",
-                f"Сумма расходов на брак: {report['defect_costs']}",
-                f"Сопутсвующие расходы еденицу товара: {report['other_unit_costs']}",
-                f"Себестоимость: {report['cost_price']}",
-                f"Цена продажи: {report['selling_price']}",
-                f"Заказали штук: {order_count}",
-                f"Прибыль за шутку: {report['unit_profit']}",
-                f"Прибыль до вычета рекламы: {report['profit_excluding_advertising']}",
-                f"Затраты на рекламу: {advancement_costs}",
-                f"Чистая прибль: {report['profit_excluding_advertising'] - advancement_costs}",
+            row = [
+                report['title'], report['article'], report['wb_comission_cost'], report['purchase_price'],
+                report['warehouse_delivery_cost'], report['wb_logistics_cost'], report['tax_rate'],
+                report['tax_cost'], report['packing_cost'], report['wb_warehouse_delivery_cost_per_item'],
+                report['defect_percentage'], report['defect_costs'], report['other_unit_costs'],
+                report['cost_price'], report['selling_price'], order_count, report['unit_profit'],
+                report['profit_excluding_advertising'], advancement_costs,
+                report['profit_excluding_advertising'] - advancement_costs
             ]
-            if report["gift_price"] is not None:
-                msg.append(f"Цена подарка: {report['gift_price']}")
+            sheet.append(row)
+
             all_profit += report['profit_excluding_advertising'] - advancement_costs
             all_advertising_costs += advancement_costs
-            await bot.send_message(
-                report["user_id"],
-                "\n".join(msg),
-                parse_mode="Markdown",
 
-            )
-        await bot.send_message(
-            user_id,
-            "Итого:\n"
-            f"Чистая прибль: {all_profit}\n"
-            f"Расходы на рекламу: {all_advertising_costs}",
-            parse_mode="Markdown")
+        # Добавляем итоговые значения в таблицу
+        sheet.append([])
+        sheet.append(
+            ["Итого", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", all_advertising_costs,
+             all_profit])
+
+        # Сохраняем файл в буфер
+        buffer = BytesIO()
+        workbook.save(buffer)
+        buffer.seek(0)
+
+        # Отправляем файл пользователю
+        input_file = BufferedInputFile(buffer.read(), filename=f'report_{user_id}_{today}.xlsx')
+        await bot.send_document(user_id, input_file, caption=f"Ежедневный отчет в формате excel за {today}\n"
+                                                             "Итого:\n"
+                                                             f"Чистая прибыль: {all_profit}\n"
+                                                             f"Расходы на рекламу: {all_advertising_costs}",)
+
