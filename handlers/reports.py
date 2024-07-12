@@ -62,33 +62,52 @@ class Reports:
         sheet = wb.active
 
         self.reports_repo.clear_items(msg.from_user.id)
-        for row in sheet.iter_rows(min_row=2, values_only=True):
-            item = {
-                "article": row[0],
-                "title": row[1],
-                "advancements_ids": str(row[2]).replace(" ", "").split(","),
-                "wb_commission_percents": row[3],
-                "additional_commission": row[4],
-                "purchase_price": row[5],
-                "warehouse_delivery": row[6],
-                "wb_logistics_cost": row[7],
-                "tax_rate": row[8],
-                "packaging_costs": row[9],
-                "shipping_costs_to_warehouse_per_item": row[10],
-                "gift_price": row[11],
-                "reject_rate": row[12],
-                "other_expenses": row[13],
-                "selling_price": row[14],
-            }
-            if item["article"] is None:
-                continue
-            item["wb_commission_rubles"] = item["selling_price"] / 100 * (
-                    item["wb_commission_percents"] + item["additional_commission"])
-            item["tax_amount"] = item["selling_price"] / 100 * item["tax_rate"]
-            item["marriage_costs"] = item["selling_price"] / 100 * item["reject_rate"]
-            logging.info(item)
-            self.reports_repo.add_item(item, msg.from_user.id)
+        try:
+            for row in sheet.iter_rows(min_row=2, values_only=True):
+                item = {
+                    "article": row[0],
+                    "title": row[1],
+                    "advancements_ids": str(row[2]).replace(" ", "").split(","),
+                    "wb_commission_percents": row[3],
+                    "wb_additional_commision_percents": row[4],
+                    "purchase_price": row[5],
+                    "warehouse_delivery_cost": row[6],
+                    "wb_logistics_cost": row[7],
+                    "tax_rate": row[8],
+                    "packing_cost": row[9],
+                    "wb_warehouse_delivery_cost_per_item": row[10],
+                    "gift_price": row[11],
+                    "defect_percentage": row[12],
+                    "other_unit_costs": row[13],
+                    "selling_price": row[14],
+                }
+                if item["article"] is None:
+                    continue
 
+                if item["wb_commission_percents"] is None:
+                    item["wb_comission_cost"] = (item["selling_price"] / 100 *
+                                                 (item["wb_commission_percents"] + item[
+                                                     "wb_additional_commision_percents"]))
+                else:
+                    item["wb_comission_cost"] = (item["selling_price"] / 100 *
+                                                 (item["wb_commission_percents"]))
+                item["tax_cost"] = (item["selling_price"] / 100) * item["tax_rate"]
+                item["defect_costs"] = (item["selling_price"] / 100) * item["defect_percentage"]
+                item["cost_price"] = float(item["purchase_price"]) + float(item["warehouse_delivery_cost"]) + float(item[
+                    "wb_comission_cost"]) + \
+                                     float(item["wb_logistics_cost"]) + float(item["tax_cost"]) + float(item["packing_cost"]) + float(item[
+                                         "wb_warehouse_delivery_cost_per_item"])  + float(item[
+                                         "defect_costs"]) + float(item["other_unit_costs"])
+                if item["gift_price"] is not None:
+                    item["cost_price"] += float(item["gift_price"])
+
+                item["unit_profit"] = float(item["selling_price"]) - float(item["cost_price"])
+                logging.info(item)
+                self.reports_repo.add_item(item, msg.from_user.id)
+        except Exception as e:
+            await msg.reply(
+                f"Ошибка при получении данных из таблицы.\nПроверьте таблицу или свяжитесь с поддержкой\nОшибка - {e}")
+            logging.exception(e)
         await msg.reply(f"Получил, теперь ежедневно я буду вести учет Ваших продаж\n"
                         "(Бот будет работать с этой таблицей и формировать ежедневные отчеты по прибыли, присылать их "
                         "после окончания дня 00:10 по мск)")

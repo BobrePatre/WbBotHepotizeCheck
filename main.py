@@ -1,15 +1,20 @@
 import asyncio
+import datetime
 import logging
 import os
 
 from aiogram import Bot, Dispatcher, types, filters, F
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.storage.memory import MemoryStorage
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from apscheduler.triggers.cron import CronTrigger
+from apscheduler.triggers.interval import IntervalTrigger
 from dotenv import load_dotenv
 from pymongo import MongoClient
 
 from handlers.reports import Reports
 from repository.reports import ReportsRepository
+from tasks.reports import send_report
 from tasks.warehouse import update_stock
 from tasks.advancement import check_advancement
 
@@ -44,6 +49,8 @@ async def main():
         mongo_uri = f'mongodb://{os.getenv("MONGO_HOST")}:{os.getenv("MONGO_PORT")}'
 
     mongo_client = MongoClient(mongo_uri)
+    logging.getLogger('pymongo').setLevel(logging.WARNING)
+
     app_database = mongo_client.get_database("app")
 
     # Initialize repositories
@@ -72,9 +79,27 @@ async def main():
         await bot.send_message(message.from_user.id, "Главное меню", reply_markup=kb.get_main_keyboard())
         await state.set_state(None)
 
-    # Start background task
-    asyncio.create_task(update_stock(bot, user_repo, warehouse_repo))
-    asyncio.create_task(check_advancement(bot, advancement_repo, user_repo))
+    # Start tasks
+    scheduler = AsyncIOScheduler()
+    scheduler.add_job(
+        check_advancement,
+        IntervalTrigger(minutes=48),
+        next_run_time=datetime.datetime.now(),
+        args=[bot, advancement_repo, user_repo],
+    )
+    scheduler.add_job(
+        update_stock,
+        IntervalTrigger(minutes=10),
+        next_run_time=datetime.datetime.now(),
+        args=[bot, user_repo, warehouse_repo],
+    )
+    scheduler.add_job(
+        send_report,
+        CronTrigger(hour=0, minute=10, timezone='Europe/Moscow'),
+        next_run_time=datetime.datetime.now(),
+        args=[bot, advancement_repo, warehouse_repo, user_repo, reports_repo],
+    )
+    scheduler.start()
 
     # Start polling
     await dp.start_polling(bot, skip_updates=True)

@@ -10,3 +10,6 @@ class ReportsRepository(MongoRepository):
 
     def clear_items(self, user_id):
         self.collection.delete_many({"user_id": user_id})
+
+    def get_items_by_user_id(self, user_id):
+        return self.collection.find({"user_id": user_id})
