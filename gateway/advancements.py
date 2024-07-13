@@ -10,11 +10,12 @@ def get_advancements(token):
     headers = {
         "Authorization": f"{token}"
     }
-    req = requests.get(url, headers=headers)
-    if req.status_code != 200:
-        print(f"Error: {req.status_code} - {req.text}")
+    response = requests.get(url, headers=headers)
+    if response.status_code != 200:
+        logging.error(f"Error: {response.status_code} - {response.text}")
+        response.raise_for_status()
         return None
-    return req.json()
+    return response.json()
 
 
 def get_advancement_budget(token: str, advencement_id: int):
@@ -25,11 +26,12 @@ def get_advancement_budget(token: str, advencement_id: int):
     params = {
         "id": advencement_id,
     }
-    req = requests.get(url, headers=headers, params=params)
-    if req.status_code != 200:
-        print(f"Error: {req.status_code} - {req.text}")
+    response = requests.get(url, headers=headers, params=params)
+    if response.status_code != 200:
+        logging.error(f"Error: {response.status_code} - {response.text}")
+        response.raise_for_status()
         return None
-    return req.json()
+    return response.json()
 
 
 def get_advancement_data(token: str, advencement_id: int):
@@ -38,14 +40,15 @@ def get_advancement_data(token: str, advencement_id: int):
         "Authorization": f"{token}",
         "Content-Type": "application/json",
     }
-    req_body = [
+    response_body = [
         advencement_id,
     ]
-    resp = requests.post(url, headers=headers, json=req_body)
-    if resp.status_code != 200:
-        print(f"Error: {resp.status_code} - {resp.text}")
+    response = requests.post(url, headers=headers, json=response_body)
+    if response.status_code != 200:
+        logging.error(f"Error: {response.status_code} - {response.text}")
+        response.raise_for_status()
         return None
-    return resp.json()
+    return response.json()
 
 
 def get_advancement_cost_history(token: str, from_date, to_date):
