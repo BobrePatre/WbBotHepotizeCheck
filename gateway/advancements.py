@@ -2,7 +2,7 @@ import logging
 
 import requests
 
-host = "https://advert-api.wb.ru"
+host = "https://advert-api.wildberries.ru"
 
 
 def get_advancements(token):
