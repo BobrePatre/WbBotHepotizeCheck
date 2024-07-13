@@ -22,13 +22,14 @@ async def update_stock(bot: Bot, users_repo: UsersRepository, warehouse_repo: Wa
         new_orders = new_orders["orders"]
         logging.info("Getting new orders %s", new_orders)
         for order in new_orders:
-            print(order)
+            logging.info(order)
             res = warehouse_repo.get_article(order["article"])
             if res is None:
                 continue
             warehouse_repo.set_new_limit(order["article"], int(res["article"]["limit"]) - 1)
             if res["article"]["limit"] - 1 <= res["article"]["lower_limit"]:
                 await bot.send_message(res["user_id"],
-                                       f"У вас заканчивается {res['article']['name']}! Осталось штук - {res['article']['limit'] - 1}\n"
+                                       f"У вас заканчивается {res['article']['name']}! Осталось штук - "
+                                       f"{res['article']['limit'] - 1}\n"
                                        f"Ваш нижний порог - {res['article']['lower_limit']}\n")
             print("Лимит уменьшен")

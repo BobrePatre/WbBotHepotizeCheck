@@ -105,6 +105,11 @@ async def main():
 
 
 if __name__ == '__main__':
-    logging.basicConfig(level=logging.DEBUG)
+    log_format = "%(asctime)s - %(levelname)s - %(message)s"
+    logging.basicConfig(
+        level=logging.DEBUG,
+        format=log_format,
+        datefmt="%Y-%m-%d %H:%M:%S"
+    )
     logging.info(f'Starting bot at {os.getenv("BOT_TOKEN")}')
     asyncio.run(main())
