@@ -84,6 +84,8 @@ class Reports:
                 if item["article"] is None:
                     continue
 
+                if item["wb_additional_commision_percents"] is None:
+                    item["wb_additional_commision_percents"] = 0
                 if item["wb_commission_percents"] is None:
                     item["wb_comission_cost"] = (item["selling_price"] / 100 *
                                                  (item["wb_commission_percents"] + item[
@@ -93,11 +95,14 @@ class Reports:
                                                  (item["wb_commission_percents"]))
                 item["tax_cost"] = (item["selling_price"] / 100) * item["tax_rate"]
                 item["defect_costs"] = (item["selling_price"] / 100) * item["defect_percentage"]
-                item["cost_price"] = float(item["purchase_price"]) + float(item["warehouse_delivery_cost"]) + float(item[
-                    "wb_comission_cost"]) + \
-                                     float(item["wb_logistics_cost"]) + float(item["tax_cost"]) + float(item["packing_cost"]) + float(item[
-                                         "wb_warehouse_delivery_cost_per_item"])  + float(item[
-                                         "defect_costs"]) + float(item["other_unit_costs"])
+                item["cost_price"] = float(item["purchase_price"]) + float(item["warehouse_delivery_cost"]) + float(
+                    item[
+                        "wb_comission_cost"]) + \
+                                     float(item["wb_logistics_cost"]) + float(item["tax_cost"]) + float(
+                    item["packing_cost"]) + float(item[
+                                                      "wb_warehouse_delivery_cost_per_item"]) + float(item[
+                                                                                                          "defect_costs"]) + float(
+                    item["other_unit_costs"])
                 if item["gift_price"] is not None:
                     item["cost_price"] += float(item["gift_price"])
 
