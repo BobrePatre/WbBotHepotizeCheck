@@ -84,6 +84,9 @@ class Reports:
                 if item["article"] is None:
                     continue
 
+                if item["other_unit_costs"] is None:
+                    item["other_unit_costs"] = 0
+
                 if item["wb_additional_commision_percents"] is None:
                     item["wb_additional_commision_percents"] = 0
                 if item["wb_commission_percents"] is None:
