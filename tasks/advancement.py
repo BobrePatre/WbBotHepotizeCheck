@@ -19,7 +19,7 @@ async def check_advancement(
         user = user_repository.get_user(advancement['user_id'])
         res = get_advancements(user["wb_key"])
         for advert in res['adverts']:
-            asyncio.sleep(20)
+            asyncio.sleep(60)
             logging.info(advert)
             for advert_data in advert['advert_list']:
                 resp = get_advancement_budget(user["wb_key"], advert_data['advertId'])
