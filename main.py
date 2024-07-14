@@ -97,8 +97,8 @@ async def main():
         args=[bot, advancement_repo, warehouse_repo, user_repo, reports_repo],
     )
     scheduler.start()
-    update_stock(bot, user_repo, warehouse_repo)
-    check_advancement(bot, advancement_repo, user_repo)
+    await update_stock(bot, user_repo, warehouse_repo)
+    await check_advancement(bot, advancement_repo, user_repo)
 
     # Start polling
     await dp.start_polling(bot, skip_updates=True)
