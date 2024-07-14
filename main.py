@@ -84,13 +84,11 @@ async def main():
     scheduler.add_job(
         check_advancement,
         IntervalTrigger(minutes=48),
-        next_run_time=datetime.datetime.now(),
         args=[bot, advancement_repo, user_repo],
     )
     scheduler.add_job(
         update_stock,
         IntervalTrigger(minutes=10),
-        next_run_time=datetime.datetime.now(),
         args=[bot, user_repo, warehouse_repo],
     )
     scheduler.add_job(
