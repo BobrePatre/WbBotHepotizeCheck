@@ -31,7 +31,7 @@ async def update_stock(bot: Bot, users_repo: UsersRepository, warehouse_repo: Wa
             continue
 
         if "orders" not in new_orders:
-            logging.warning(f"No 'orders' in response for user {user['id']}. Response: {new_orders}")
+            logging.warning(f"No 'orders' in response for user {user['tg_id']}. Response: {new_orders}")
             continue
 
         new_orders = new_orders["orders"]
