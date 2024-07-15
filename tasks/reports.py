@@ -16,8 +16,6 @@ async def generate_report(start_timestamp, end_timestamp, start_date, end_date, 
     reports = reports_repo.get_items_by_user_id(user_id=user_id)
     orders = await fetch_orders(date_from=start_timestamp, date_to=end_timestamp, token=wb_key)
 
-    logging.debug("Fetched orders for user %s: %s", user_id, orders)
-
     all_profit = 0
     all_advertising_costs = 0
 
@@ -33,7 +31,6 @@ async def generate_report(start_timestamp, end_timestamp, start_date, end_date, 
     ]
     sheet.append(headers)
 
-    logging.debug("Penis dates from - %s to - %s", start_date, end_date)
     advancements = await get_advancement_cost_history(wb_key, from_date=start_date, to_date=end_date)
 
     for report in reports:
@@ -45,9 +42,18 @@ async def generate_report(start_timestamp, end_timestamp, start_date, end_date, 
             if advancement_id is None or advancement_id == "None":
                 logging.info("Advancement id is none, skipping")
                 continue
+
+            latest_advancements = {}
             for advancement in advancements:
-                if int(advancement["advertId"]) == int(advancement_id):
-                    advancement_costs += advancement["updSum"]
+                advert_id = advancement["advertId"]
+                current_date = datetime.fromisoformat(advancement["updTime"])
+
+                if advert_id not in latest_advancements or current_date > datetime.fromisoformat(
+                        latest_advancements[advert_id]["updTime"]):
+                    latest_advancements[advert_id] = advancement
+
+            for adv in latest_advancements.values():
+                advancement_costs += adv["updSum"]
 
         row = [
             report['title'], report['article'], report['wb_comission_cost'], report['purchase_price'],
