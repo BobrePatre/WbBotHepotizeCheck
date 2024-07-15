@@ -119,6 +119,7 @@ async def send_report(bot: Bot, user_repository: UsersRepository, reports_repo: 
                 start_timestamp,
                 end_timestamp,
                 start_date,
+                end_date,
                 today,
                 reports_repo,
                 bot,
