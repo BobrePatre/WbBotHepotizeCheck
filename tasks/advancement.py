@@ -39,11 +39,8 @@ async def process_user(bot, user, advancement):
         logging.info("No adverts found for user: %s", user["tg_id"])
         return
 
-    tasks = []
     for advert in res['adverts']:
-        tasks.append(process_advert(bot, user, advancement, advert))
-
-    await asyncio.gather(*tasks)
+        await process_advert(bot, user, advancement, advert)
 
 
 async def check_advancement(bot: Bot, advancement_repo: AdvancementRepository, user_repository: UsersRepository):
