@@ -1,5 +1,4 @@
 import logging
-import time
 from datetime import datetime, timedelta
 from io import BytesIO
 from aiogram import Bot
@@ -12,7 +11,6 @@ from repository.reports import ReportsRepository
 from repository.user import UsersRepository
 from repository.warehouse import WarehouseRepository
 
-
 async def send_report(
         bot: Bot,
         advancement_repo: AdvancementRepository,
@@ -20,21 +18,27 @@ async def send_report(
         user_repository: UsersRepository,
         reports_repo: ReportsRepository,
 ):
+    logging.info("Send Report Task Triggered")
+
     now = datetime.now()
     start_of_previous_day = datetime(now.year, now.month, now.day) - timedelta(days=1)
     end_of_previous_day = start_of_previous_day + timedelta(hours=23, minutes=59, seconds=59)
 
-    start_timestamp = int(time.mktime(start_of_previous_day.timetuple()))
-    end_timestamp = int(time.mktime(end_of_previous_day.timetuple()))
+    start_timestamp = int(start_of_previous_day.timestamp())
+    end_timestamp = int(end_of_previous_day.timestamp())
 
-    start_date = datetime.fromtimestamp(start_timestamp).strftime('%Y-%m-%d')
-    end_date = datetime.fromtimestamp(end_timestamp).strftime('%Y-%m-%d')
-    today = datetime.today().strftime('%Y-%m-%d')
+    start_date = start_of_previous_day.strftime('%Y-%m-%d')
+    end_date = end_of_previous_day.strftime('%Y-%m-%d')
+    today = now.strftime('%Y-%m-%d')
     users = user_repository.get_all_users()
+
+    logging.info("Fetched all users: %d users found", len(users))
 
     for user in users:
         if "wb_key" not in user:
+            logging.info("Skipping user without wb_key: %s", user)
             continue
+
         wb_key = user["wb_key"]
         user_id = user["tg_id"]
         reports = reports_repo.get_items_by_user_id(user_id=user_id)
@@ -43,7 +47,9 @@ async def send_report(
             date_to=end_timestamp,
             token=wb_key,
         )
-        logging.debug(orders)
+
+        logging.debug("Fetched orders for user %s: %s", user_id, orders)
+
         all_profit = 0
         all_advertising_costs = 0
 
@@ -84,21 +90,25 @@ async def send_report(
             all_profit += report['profit_excluding_advertising'] - advancement_costs
             all_advertising_costs += advancement_costs
 
-        # Добавляем итоговые значения в таблицу
+        # Add total values to the table
         sheet.append([])
         sheet.append(
-            ["Итого", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", all_advertising_costs,
-             all_profit])
+            ["Итого", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", all_advertising_costs, all_profit]
+        )
 
-        # Сохраняем файл в буфер
+        # Save the file to buffer
         buffer = BytesIO()
         workbook.save(buffer)
         buffer.seek(0)
 
-        # Отправляем файл пользователю
+        # Send the file to the user
         input_file = BufferedInputFile(buffer.read(), filename=f'report_{user_id}_{today}.xlsx')
-        await bot.send_document(user_id, input_file, caption=f"Ежедневный отчет в формате excel за {today}\n"
-                                                             "Итого:\n"
-                                                             f"Чистая прибыль: {all_profit}\n"
-                                                             f"Расходы на рекламу: {all_advertising_costs}",)
-
+        await bot.send_document(
+            user_id,
+            input_file,
+            caption=f"Ежедневный отчет в формате excel за {today}\n"
+                    f"Итого:\n"
+                    f"Чистая прибыль: {all_profit}\n"
+                    f"Расходы на рекламу: {all_advertising_costs}",
+        )
+        logging.info("Report sent to user %s", user_id)
