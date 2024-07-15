@@ -1,10 +1,13 @@
 import asyncio
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime
+from datetime import timedelta
 from io import BytesIO
+
 from aiogram import Bot
 from aiogram.types import BufferedInputFile
 from openpyxl import Workbook
+
 from gateway.advancements import get_advancement_cost_history
 from gateway.marketplace import fetch_orders
 from repository.reports import ReportsRepository
@@ -33,6 +36,17 @@ async def generate_report(start_timestamp, end_timestamp, start_date, end_date, 
 
     advancements = await get_advancement_cost_history(wb_key, from_date=start_date, to_date=end_date)
 
+    # Словарь для хранения самого последнего обновления для каждого advertId
+    latest_advancements = {}
+
+    for advancement in advancements:
+        advert_id = advancement["advertId"]
+        current_date = datetime.fromisoformat(advancement["updTime"])
+
+        if advert_id not in latest_advancements or current_date > datetime.fromisoformat(
+                latest_advancements[advert_id]["updTime"]):
+            latest_advancements[advert_id] = advancement
+
     for report in reports:
         order_count = sum(1 for order in orders if order["article"] == report["article"])
         report["profit_excluding_advertising"] = report["unit_profit"] * order_count
@@ -43,17 +57,9 @@ async def generate_report(start_timestamp, end_timestamp, start_date, end_date, 
                 logging.info("Advancement id is none, skipping")
                 continue
 
-            latest_advancements = {}
-            for advancement in advancements:
-                advert_id = advancement["advertId"]
-                current_date = datetime.fromisoformat(advancement["updTime"])
-
-                if advert_id not in latest_advancements or current_date > datetime.fromisoformat(
-                        latest_advancements[advert_id]["updTime"]):
-                    latest_advancements[advert_id] = advancement
-
-            for adv in latest_advancements.values():
-                advancement_costs += adv["updSum"]
+            # Проверяем, есть ли последнее обновление для данного advancement_id
+            if advancement_id in latest_advancements:
+                advancement_costs += latest_advancements[advancement_id]["updSum"]
 
         row = [
             report['title'], report['article'], report['wb_comission_cost'], report['purchase_price'],
