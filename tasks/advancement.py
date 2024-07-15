@@ -23,10 +23,10 @@ async def check_advancement(
             logging.warning("Skipping advancement for user without wb_key: %s", advancement['user_id'])
             continue
 
-        logging.info("Fetching advancements for user: %s", user["id"])
+        logging.info("Fetching advancements for user: %s", user["tg_id"])
         res = get_advancements(user["wb_key"])
         if not res or "adverts" not in res:
-            logging.info("No adverts found for user: %s", user["id"])
+            logging.info("No adverts found for user: %s", user["tg_id"])
             continue
 
         for advert in res['adverts']:
