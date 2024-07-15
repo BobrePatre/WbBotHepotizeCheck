@@ -38,7 +38,7 @@ async def update_stock(bot: Bot, users_repo: UsersRepository, warehouse_repo: Wa
         logging.info(f"User {user['tg_id']} - New orders fetched: {new_orders}")
 
         for order in new_orders:
-            logging.info(f"Processing order {order['user_id']} for article {order['article']}")
+            logging.info(f"Processing order {order['id']} for article {order['article']}")
 
             try:
                 article_data = warehouse_repo.get_article(order["article"])
