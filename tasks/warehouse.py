@@ -21,7 +21,7 @@ async def update_stock(bot: Bot, users_repo: UsersRepository, warehouse_repo: Wa
 
     for user in users:
         if "wb_key" not in user:
-            logging.warning(f"User {user['id']} does not have a wb_key. Skipping.")
+            logging.warning(f"User {user['tg_id']} does not have a wb_key. Skipping.")
             continue
 
         try:

@@ -100,6 +100,7 @@ async def main():
     try:
         await update_stock(bot, user_repo, warehouse_repo)
         await check_advancement(bot, advancement_repo, user_repo)
+        await send_report(bot, advancement_repo, user_repo, reports_repo)
     except Exception as e:
         logging.exception(e)
 
