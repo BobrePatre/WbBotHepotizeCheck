@@ -36,17 +36,6 @@ async def generate_report(start_timestamp, end_timestamp, start_date, end_date, 
 
     advancements = await get_advancement_cost_history(wb_key, from_date=start_date, to_date=end_date)
 
-    # Словарь для хранения самых последних данных по рекламе для каждого advertId
-    latest_advancements = {}
-
-    for advancement in advancements:
-        advert_id = advancement["advertId"]
-        current_date = datetime.fromisoformat(advancement["updTime"])
-
-        if advert_id not in latest_advancements or current_date > datetime.fromisoformat(
-                latest_advancements[advert_id]["updTime"]):
-            latest_advancements[advert_id] = advancement
-
     for report in reports:
         order_count = sum(1 for order in orders if order["article"] == report["article"])
         report["profit_excluding_advertising"] = report["unit_profit"] * order_count
@@ -57,8 +46,9 @@ async def generate_report(start_timestamp, end_timestamp, start_date, end_date, 
                 logging.info("Advancement id is none, skipping")
                 continue
 
-            if int(advancement_id) in latest_advancements:
-                advancement_costs += latest_advancements[int(advancement_id)]["updSum"]
+            for advancement in advancements:
+                if int(advancement["advertId"]) == int(advancement_id):
+                    advancement_costs += advancement["updSum"]
 
         row = [
             report['title'], report['article'], report['wb_comission_cost'], report['purchase_price'],
@@ -96,8 +86,6 @@ async def generate_report(start_timestamp, end_timestamp, start_date, end_date, 
                 f"Расходы на рекламу: {all_advertising_costs}",
     )
     logging.info("Report sent to user %s", user_id)
-
-
 async def send_report(bot: Bot, user_repository: UsersRepository, reports_repo: ReportsRepository):
     logging.info("Send Report Task Triggered")
 
