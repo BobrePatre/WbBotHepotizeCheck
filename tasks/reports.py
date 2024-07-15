@@ -79,7 +79,7 @@ async def generate_report(start_timestamp, end_timestamp, start_date, today, rep
     await bot.send_document(
         user_id,
         input_file,
-        caption=f"Ежедневный отчет в формате excel за {today}\n"
+        caption=f"Ежедневный отчет в формате excel за {start_date}\n"
                 f"Итого:\n"
                 f"Чистая прибыль: {all_profit}\n"
                 f"Расходы на рекламу: {all_advertising_costs}",
