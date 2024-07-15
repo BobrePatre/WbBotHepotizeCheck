@@ -40,12 +40,10 @@ async def generate_report(start_timestamp, end_timestamp, start_date, today, rep
 
         advancement_costs = 0
         for advancement_id in report["advancements_ids"]:
-            logging.debug("PENISA BLAT SYJKA %s AND TYPE BLAT", advancement_id, type(advancement_id))
             if advancement_id is None or advancement_id == "None":
                 logging.info("Advancement id is none, skipping")
                 continue
             for advancement in advancements:
-                logging.debug("DEBUG REPORTS ADVANCEMENT: %s - ADVANCEMENT_ID %s", advancement, advancement_id)
                 if int(advancement["advertId"]) == int(advancement_id):
                     advancement_costs += advancement["updSum"]
 
