@@ -27,7 +27,7 @@ async def update_stock(bot: Bot, users_repo: UsersRepository, warehouse_repo: Wa
         try:
             new_orders = get_orders(user["wb_key"], date_from)
         except Exception as e:
-            logging.error(f"Failed to fetch orders for user {user['id']}: {e}")
+            logging.error(f"Failed to fetch orders for user {user['tg_id']}: {e}")
             continue
 
         if "orders" not in new_orders:
@@ -35,10 +35,10 @@ async def update_stock(bot: Bot, users_repo: UsersRepository, warehouse_repo: Wa
             continue
 
         new_orders = new_orders["orders"]
-        logging.info(f"User {user['id']} - New orders fetched: {new_orders}")
+        logging.info(f"User {user['tg_id']} - New orders fetched: {new_orders}")
 
         for order in new_orders:
-            logging.info(f"Processing order {order['id']} for article {order['article']}")
+            logging.info(f"Processing order {order['tg_id']} for article {order['article']}")
 
             try:
                 article_data = warehouse_repo.get_article(order["article"])
