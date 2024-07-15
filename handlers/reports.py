@@ -84,6 +84,9 @@ class Reports:
                 if item["article"] is None:
                     continue
 
+                if item["advancements_ids"] == "None":
+                    item["advancements_ids"] = []
+
                 if item["other_unit_costs"] is None:
                     item["other_unit_costs"] = 0
 
