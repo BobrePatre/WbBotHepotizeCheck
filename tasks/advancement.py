@@ -38,9 +38,11 @@ async def process_user(bot, user, advancement):
         logging.info("No adverts found for user: %s", user["tg_id"])
         return
 
+    tasks = []
     for advert in res['adverts']:
-        await process_advert(bot, user, advancement, advert)
-        await asyncio.sleep(120)  # Используйте await для асинхронного сна
+        tasks.append(process_advert(bot, user, advancement, advert))
+
+    await asyncio.gather(*tasks)
 
 
 async def check_advancement(bot: Bot, advancement_repo: AdvancementRepository, user_repository: UsersRepository):
@@ -59,4 +61,3 @@ async def check_advancement(bot: Bot, advancement_repo: AdvancementRepository, u
         tasks.append(process_user(bot, user, advancement))
 
     await asyncio.gather(*tasks)
-

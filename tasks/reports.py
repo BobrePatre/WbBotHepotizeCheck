@@ -13,11 +13,7 @@ from repository.user import UsersRepository
 
 async def generate_report(user, start_timestamp, end_timestamp, start_date, today, reports_repo, bot, wb_key, user_id):
     reports = reports_repo.get_items_by_user_id(user_id=user_id)
-    orders = await fetch_orders(
-        date_from=start_timestamp,
-        date_to=end_timestamp,
-        token=wb_key,
-    )
+    orders = await fetch_orders(date_from=start_timestamp, date_to=end_timestamp, token=wb_key)
 
     logging.debug("Fetched orders for user %s: %s", user_id, orders)
 
@@ -65,8 +61,7 @@ async def generate_report(user, start_timestamp, end_timestamp, start_date, toda
     # Add total values to the table
     sheet.append([])
     sheet.append(
-        ["Итого", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", all_advertising_costs,
-         all_profit]
+        ["Итого", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", all_advertising_costs, all_profit]
     )
 
     # Save the file to buffer
@@ -112,7 +107,8 @@ async def send_report(bot: Bot, user_repository: UsersRepository, reports_repo: 
         wb_key = user["wb_key"]
         user_id = user["tg_id"]
 
-        tasks.append(generate_report(user, start_timestamp, end_timestamp, start_date, today, reports_repo, bot, wb_key, user_id))
+        tasks.append(generate_report(user, start_timestamp, end_timestamp, start_date, today, reports_repo, bot, wb_key,
+                                     user_id))
 
     await asyncio.gather(*tasks)
 

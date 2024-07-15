@@ -1,11 +1,10 @@
 import logging
-
-import requests
+import aiohttp
 
 host = "https://marketplace-api.wildberries.ru"
 
 
-def fetch_orders(date_from, date_to, token):
+async def fetch_orders(date_from, date_to, token):
     headers = {
         'accept': 'application/json',
         'Authorization': token
@@ -17,10 +16,12 @@ def fetch_orders(date_from, date_to, token):
         'dateTo': date_to
     }
 
-    response = requests.get(host + "/api/v3/orders", headers=headers, params=params)
-    logging.debug(f" fething orders response: {response.status_code}")
-    if response.status_code != 200:
-        response.raise_for_status()
-        return None
-    logging.debug(f"fething orders response: {response.text}")
-    return response.json()["orders"]
+    async with aiohttp.ClientSession() as session:
+        async with session.get(host + "/api/v3/orders", headers=headers, params=params) as response:
+            logging.debug(f"Fetching orders response: {response.status}")
+            if response.status != 200:
+                logging.error(f"Error fetching orders: {response.status} - {await response.text()}")
+                response.raise_for_status()
+                return None
+            logging.debug(f"Fetching orders response: {await response.text()}")
+            return (await response.json())["orders"]

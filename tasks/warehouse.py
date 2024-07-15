@@ -2,7 +2,6 @@ import asyncio
 import logging
 from datetime import datetime, timedelta
 from aiogram import Bot
-
 from gateway.warehouse import get_orders
 from repository.user import UsersRepository
 from repository.warehouse import WarehouseRepository
@@ -11,7 +10,7 @@ from repository.warehouse import WarehouseRepository
 async def process_order(bot, user, order, warehouse_repo):
     logging.info(f"Processing order {order['id']} for article {order['article']}")
     try:
-        article_data = warehouse_repo.get_article(order["article"])
+        article_data = await warehouse_repo.get_article(order["article"])
     except Exception as e:
         logging.error(f"Failed to fetch article data for article {order['article']}: {e}")
         return
@@ -23,7 +22,7 @@ async def process_order(bot, user, order, warehouse_repo):
     try:
         current_limit = int(article_data["article"]["limit"])
         new_limit = current_limit - 1
-        warehouse_repo.set_new_limit(order["article"], new_limit)
+        await warehouse_repo.set_new_limit(order["article"], new_limit)
         logging.info(f"Article {order['article']} limit updated: {current_limit} -> {new_limit}")
 
         if new_limit <= article_data["article"]["lower_limit"]:
@@ -80,4 +79,3 @@ async def update_stock(bot: Bot, users_repo: UsersRepository, warehouse_repo: Wa
     await asyncio.gather(*tasks)
 
     logging.info("Update Stock Task Completed")
-
