@@ -41,6 +41,7 @@ async def generate_report(start_timestamp, end_timestamp, start_date, today, rep
         advancement_costs = 0
         for advancement_id in report["advancements_ids"]:
             if advancement_id is None:
+                logging.info("Advancement id is none, skipping")
                 continue
             for advancement in advancements:
                 logging.debug("DEBUG REPORTS ADVANCEMENT: %s - ADVANCEMENT_ID %s", advancement, advancement_id)
