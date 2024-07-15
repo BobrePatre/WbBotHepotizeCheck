@@ -83,7 +83,7 @@ async def main():
     scheduler = AsyncIOScheduler()
     scheduler.add_job(
         check_advancement,
-        IntervalTrigger(minutes=48),
+        IntervalTrigger(minutes=60),
         args=[bot, advancement_repo, user_repo],
     )
     scheduler.add_job(
@@ -94,7 +94,7 @@ async def main():
     scheduler.add_job(
         send_report,
         CronTrigger(hour=0, minute=10, timezone='Europe/Moscow'),
-        args=[bot, advancement_repo, warehouse_repo, user_repo, reports_repo],
+        args=[bot, user_repo, reports_repo],
     )
     scheduler.start()
     try:
@@ -102,7 +102,7 @@ async def main():
         logging.info("Executed update task")
         await check_advancement(bot, advancement_repo, user_repo)
         logging.info("Executed check advancement task")
-        await send_report(bot, advancement_repo, user_repo, reports_repo)
+        await send_report(bot, user_repo, reports_repo)
         logging.info("Executed report task")
     except Exception as e:
         logging.exception(e)
