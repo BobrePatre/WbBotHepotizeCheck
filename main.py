@@ -98,12 +98,11 @@ async def main():
     )
     scheduler.start()
     try:
-        await update_stock(bot, user_repo, warehouse_repo)
-        logging.info("Executed update task")
-        await check_advancement(bot, advancement_repo, user_repo)
-        logging.info("Executed check advancement task")
-        await send_report(bot, user_repo, reports_repo)
-        logging.info("Executed report task")
+        logging.info("Executing tasks on startup")
+        asyncio.create_task(update_stock(bot, user_repo, warehouse_repo))
+        asyncio.create_task(check_advancement(bot, advancement_repo, user_repo))
+        asyncio.create_task(send_report(bot, user_repo, reports_repo))
+        logging.info("On startup tasks triggered")
     except Exception as e:
         logging.exception(e)
 
