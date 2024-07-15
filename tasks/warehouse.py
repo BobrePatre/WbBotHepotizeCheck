@@ -11,7 +11,7 @@ async def update_stock(bot: Bot, users_repo: UsersRepository, warehouse_repo: Wa
     logging.info("Update Stock Task Triggered")
 
     now_moscow = datetime.now()
-    date_from = int((now_moscow - timedelta(minutes=10)).timestamp())
+    date_from = int((now_moscow - timedelta(minutes=9, seconds=40)).timestamp())
 
     try:
         users = users_repo.get_all_users()
