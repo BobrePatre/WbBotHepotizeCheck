@@ -99,8 +99,11 @@ async def main():
     scheduler.start()
     try:
         await update_stock(bot, user_repo, warehouse_repo)
+        logging.info("Executed update task")
         await check_advancement(bot, advancement_repo, user_repo)
+        logging.info("Executed check advancement task")
         await send_report(bot, advancement_repo, user_repo, reports_repo)
+        logging.info("Executed report task")
     except Exception as e:
         logging.exception(e)
 
