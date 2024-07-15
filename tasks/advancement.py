@@ -8,8 +8,9 @@ from repository.user import UsersRepository
 
 
 async def process_advert(bot, user, advancement, advert):
-    logging.info("Processing advert: %s", advert)
+    logging.info("Processing adverts: %s", advert)
     for advert_data in advert['advert_list']:
+        logging.info("Processing advert: %s", advert_data)
         resp = await get_advancement_budget(user["wb_key"], advert_data['advertId'])
         if resp is None:
             logging.warning("No budget info for advert: %s", advert_data['advertId'])
