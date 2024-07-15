@@ -36,7 +36,7 @@ async def generate_report(start_timestamp, end_timestamp, start_date, end_date, 
 
     advancements = await get_advancement_cost_history(wb_key, from_date=start_date, to_date=end_date)
 
-    # Словарь для хранения самого последнего обновления для каждого advertId
+    # Словарь для хранения самых последних данных по рекламе для каждого advertId
     latest_advancements = {}
 
     for advancement in advancements:
@@ -57,9 +57,8 @@ async def generate_report(start_timestamp, end_timestamp, start_date, end_date, 
                 logging.info("Advancement id is none, skipping")
                 continue
 
-            # Проверяем, есть ли последнее обновление для данного advancement_id
-            if advancement_id in latest_advancements:
-                advancement_costs += latest_advancements[advancement_id]["updSum"]
+            if int(advancement_id) in latest_advancements:
+                advancement_costs += latest_advancements[int(advancement_id)]["updSum"]
 
         row = [
             report['title'], report['article'], report['wb_comission_cost'], report['purchase_price'],
