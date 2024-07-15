@@ -22,7 +22,8 @@ async def process_order(bot, order, warehouse_repo):
     try:
         current_limit = int(article_data["article"]["limit"])
         new_limit = current_limit - 1
-        await warehouse_repo.set_new_limit(order["article"], new_limit)
+        order_article = order["article"]
+        await warehouse_repo.set_new_limit(order_article, new_limit)
         logging.info(f"Article {order['article']} limit updated: {current_limit} -> {new_limit}")
 
         if new_limit <= article_data["article"]["lower_limit"]:

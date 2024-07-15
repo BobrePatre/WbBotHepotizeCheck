@@ -11,7 +11,8 @@ from repository.reports import ReportsRepository
 from repository.user import UsersRepository
 
 
-async def generate_report(start_timestamp, end_timestamp, start_date, today, reports_repo, bot, wb_key, user_id):
+async def generate_report(start_timestamp, end_timestamp, start_date, end_date, today, reports_repo, bot, wb_key,
+                          user_id):
     reports = reports_repo.get_items_by_user_id(user_id=user_id)
     orders = await fetch_orders(date_from=start_timestamp, date_to=end_timestamp, token=wb_key)
 
@@ -32,7 +33,8 @@ async def generate_report(start_timestamp, end_timestamp, start_date, today, rep
     ]
     sheet.append(headers)
 
-    advancements = await get_advancement_cost_history(wb_key, from_date=start_date, to_date=today)
+    logging.debug("Penis dates from - %s to - %s", start_date, end_date)
+    advancements = await get_advancement_cost_history(wb_key, from_date=start_date, to_date=end_date)
 
     for report in reports:
         order_count = sum(1 for order in orders if order["article"] == report["article"])
@@ -73,11 +75,11 @@ async def generate_report(start_timestamp, end_timestamp, start_date, today, rep
     buffer.seek(0)
 
     # Send the file to the user
-    input_file = BufferedInputFile(buffer.read(), filename=f'report_{user_id}_{today}.xlsx')
+    input_file = BufferedInputFile(buffer.read(), filename=f'report_{user_id}_{end_date}.xlsx')
     await bot.send_document(
         user_id,
         input_file,
-        caption=f"Ежедневный отчет в формате excel за {start_date}\n"
+        caption=f"Ежедневный отчет в формате excel за {end_date}\n"
                 f"Итого:\n"
                 f"Чистая прибыль: {all_profit}\n"
                 f"Расходы на рекламу: {all_advertising_costs}",
@@ -97,6 +99,7 @@ async def send_report(bot: Bot, user_repository: UsersRepository, reports_repo: 
     end_timestamp = int(end_of_previous_day.timestamp())
 
     start_date = start_of_previous_day.strftime('%Y-%m-%d')
+    end_date = end_of_previous_day.strftime('%Y-%m-%d')
     today = now.strftime('%Y-%m-%d')
     users = user_repository.get_all_users()
 
