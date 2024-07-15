@@ -80,6 +80,7 @@ async def generate_report(start_timestamp, end_timestamp, start_date, today, rep
                 f"Расходы на рекламу: {all_advertising_costs}",
     )
     logging.info("Report sent to user %s", user_id)
+    await asyncio.sleep(60)  # Задержка между запросами для одного пользователя
 
 
 async def send_report(bot: Bot, user_repository: UsersRepository, reports_repo: ReportsRepository):
@@ -111,14 +112,14 @@ async def send_report(bot: Bot, user_repository: UsersRepository, reports_repo: 
             generate_report(
                 start_timestamp,
                 end_timestamp,
-                start_date, today,
+                start_date,
+                today,
                 reports_repo,
                 bot,
                 wb_key,
                 user_id,
             )
         )
-        await asyncio.sleep(60)  # Задержка между запросами для одного пользователя
 
     await asyncio.gather(*tasks)
 
