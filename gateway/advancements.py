@@ -13,7 +13,6 @@ async def get_advancements(token):
         async with session.get(url, headers=headers) as response:
             if response.status != 200:
                 logging.error(f"Error: {response.status} - {await response.text()}")
-                response.raise_for_status()
                 return None
             return await response.json()
 
@@ -30,7 +29,6 @@ async def get_advancement_budget(token: str, advencement_id: int):
         async with session.get(url, headers=headers, params=params) as response:
             if response.status != 200:
                 logging.error(f"Error: {response.status} - {await response.text()}")
-                response.raise_for_status()
                 return None
             return await response.json()
 
@@ -48,7 +46,6 @@ async def get_advancement_data(token: str, advencement_id: int):
         async with session.post(url, headers=headers, json=response_body) as response:
             if response.status != 200:
                 logging.error(f"Error: {response.status} - {await response.text()}")
-                response.raise_for_status()
                 return None
             return await response.json()
 
@@ -67,6 +64,5 @@ async def get_advancement_cost_history(token: str, from_date, to_date):
         async with session.get(url, headers=headers, params=parameters) as response:
             if response.status != 200:
                 logging.error(f"Error: {response.status} - {await response.text()}")
-                response.raise_for_status()
                 return None
             return await response.json()

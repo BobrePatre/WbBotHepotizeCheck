@@ -21,7 +21,6 @@ async def fetch_orders(date_from, date_to, token):
             logging.debug(f"Fetching orders response: {response.status}")
             if response.status != 200:
                 logging.error(f"Error fetching orders: {response.status} - {await response.text()}")
-                response.raise_for_status()
                 return None
             logging.debug(f"Fetching orders response: {await response.text()}")
             return (await response.json())["orders"]

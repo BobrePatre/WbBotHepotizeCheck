@@ -41,6 +41,7 @@ async def process_user(bot, user, advancement):
     tasks = []
     for advert in res['adverts']:
         tasks.append(process_advert(bot, user, advancement, advert))
+        await asyncio.sleep(60)  # Задержка между запросами для одного пользователя
 
     await asyncio.gather(*tasks)
 

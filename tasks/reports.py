@@ -11,7 +11,7 @@ from repository.reports import ReportsRepository
 from repository.user import UsersRepository
 
 
-async def generate_report(user, start_timestamp, end_timestamp, start_date, today, reports_repo, bot, wb_key, user_id):
+async def generate_report(start_timestamp, end_timestamp, start_date, today, reports_repo, bot, wb_key, user_id):
     reports = reports_repo.get_items_by_user_id(user_id=user_id)
     orders = await fetch_orders(date_from=start_timestamp, date_to=end_timestamp, token=wb_key)
 
@@ -107,8 +107,18 @@ async def send_report(bot: Bot, user_repository: UsersRepository, reports_repo: 
         wb_key = user["wb_key"]
         user_id = user["tg_id"]
 
-        tasks.append(generate_report(user, start_timestamp, end_timestamp, start_date, today, reports_repo, bot, wb_key,
-                                     user_id))
+        tasks.append(
+            generate_report(
+                start_timestamp,
+                end_timestamp,
+                start_date, today,
+                reports_repo,
+                bot,
+                wb_key,
+                user_id,
+            )
+        )
+        await asyncio.sleep(60)  # Задержка между запросами для одного пользователя
 
     await asyncio.gather(*tasks)
 

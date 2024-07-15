@@ -7,7 +7,7 @@ from repository.user import UsersRepository
 from repository.warehouse import WarehouseRepository
 
 
-async def process_order(bot, user, order, warehouse_repo):
+async def process_order(bot, order, warehouse_repo):
     logging.info(f"Processing order {order['id']} for article {order['article']}")
     try:
         article_data = await warehouse_repo.get_article(order["article"])
@@ -56,7 +56,8 @@ async def process_user(bot, user, date_from, warehouse_repo):
 
     tasks = []
     for order in new_orders:
-        tasks.append(process_order(bot, user, order, warehouse_repo))
+        tasks.append(process_order(bot, order, warehouse_repo))
+        await asyncio.sleep(60)  # Задержка между запросами для одного пользователя
     await asyncio.gather(*tasks)
 
 
